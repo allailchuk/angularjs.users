@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Angular Users List</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.min.js"></script>
+
+</head>
+<body>
+
+<div ng-app="users-for-todo" ng-init="loadUsers()">
+    <form id="createUser">
+        First Name: <input type="text" ng-model="usersFirstName">
+        Last Name: <input type="text" ng-model="usersLastName">
+        Email: <input type="email" ng-model="usersEmail">
+        <button ng-click="addUser()">Submit</button>
+    </form>
+
+    <table>
+        <tr>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email</th>
+            <th>Action</th>
+        </tr>
+
+        <tr  ng-repeat="user in users">
+            <td>{{user.firstname}}</td>
+            <td>{{user.lastname}}</td>
+            <td>{{user.email}}</td>
+            <td>
+                <button ng-click="editUser(user)">Edit</button>
+                <button ng-click="deleteUser(user)">Delete</button>
+            </td>
+        </tr>
+    </table>
+
+
+
+<div class="popup" ng-show="showPopup">
+    <form id="editUser">
+        <div>First Name: <input ng-model="user.firstname" type="text" ></div>
+        <div>Last Name: <input ng-model="user.lastname" type="text"></div>
+        <div>Email: <input ng-model="user.email" type="email"></div>
+        <button value="save" ng-click="saveUser()">Save</button>
+        <button value="cancel" ng-click="hidePopup()">Cancel</button>
+        <input ng-model="user.id" id='idbox' type="hidden" name="userId">
+    </form>
+</div>
+</div>
+
+<script>
+
+    angular.module('users-for-todo', []).run(function ($rootScope, $http) {
+
+        $rootScope.loadUsers = function () {
+            $http.get('/restapi/users').then(function (rsp) {
+                $rootScope.users = rsp.data.data;
+            })
+        };
+
+        $rootScope.addUser = function () {
+            var user = {
+                firstname: $rootScope.usersFirstName,
+                lastname: $rootScope.usersLastName,
+                email: $rootScope.usersEmail
+            };
+            $http.post('/restapi/users', user).then(function () {
+                $rootScope.loadUsers();
+                $rootScope.usersFirstName = "";
+                $rootScope.usersLastName = "";
+                $rootScope.usersEmail = "";
+            })
+        };
+
+        $rootScope.deleteUser = function (user) {
+            $http.delete('/restapi/users/' + user.id).then(function () {
+                $rootScope.loadUsers();
+            })
+        };
+
+        $rootScope.hidePopup = function () {
+            $rootScope.showPopup = false;
+        };
+
+        $rootScope.editUser = function (user) {
+            $rootScope.showPopup = true;
+
+            $rootScope.user = {
+                firstname: user.firstname,
+                lastname: user.lastname,
+                email: user.email,
+                id: user.id
+            }
+
+        };
+
+        $rootScope.saveUser = function () {
+            $http.put('/restapi/users/' + $rootScope.user.id, $rootScope.user).then(function () {
+                $rootScope.showPopup = false;
+                $rootScope.loadUsers();
+            })
+        };
+    })
+
+</script>
+
+</body>
+</html>
