@@ -38,28 +38,25 @@
 
 
 
-<div class="popup" ng-show="showPopup">
-    <form id="editUser">
-        <div>First Name: <input ng-model="user.firstname" type="text" ></div>
-        <div>Last Name: <input ng-model="user.lastname" type="text"></div>
-        <div>Email: <input ng-model="user.email" type="email"></div>
-        <button value="save" ng-click="saveUser()">Save</button>
-        <button value="cancel" ng-click="hidePopup()">Cancel</button>
-        <input ng-model="user.id" id='idbox' type="hidden" name="userId">
-    </form>
-</div>
+    <div class="popup" ng-show="showPopup">
+        <form id="editUser">
+            <div>First Name: <input ng-model="user.firstname" type="text" ></div>
+            <div>Last Name: <input ng-model="user.lastname" type="text"></div>
+            <div>Email: <input ng-model="user.email" type="email"></div>
+            <button value="save" ng-click="saveUser()">Save</button>
+            <button value="cancel" ng-click="hidePopup()">Cancel</button>
+            <input ng-model="user.id" id='idbox' type="hidden" name="userId">
+        </form>
+    </div>
 </div>
 
 <script>
-
     angular.module('users-for-todo', []).run(function ($rootScope, $http) {
-
         $rootScope.loadUsers = function () {
             $http.get('/restapi/users').then(function (rsp) {
                 $rootScope.users = rsp.data.data;
             })
         };
-
         $rootScope.addUser = function () {
             var user = {
                 firstname: $rootScope.usersFirstName,
@@ -73,29 +70,23 @@
                 $rootScope.usersEmail = "";
             })
         };
-
         $rootScope.deleteUser = function (user) {
             $http.delete('/restapi/users/' + user.id).then(function () {
                 $rootScope.loadUsers();
             })
         };
-
         $rootScope.hidePopup = function () {
             $rootScope.showPopup = false;
         };
-
         $rootScope.editUser = function (user) {
             $rootScope.showPopup = true;
-
             $rootScope.user = {
                 firstname: user.firstname,
                 lastname: user.lastname,
                 email: user.email,
                 id: user.id
             }
-
         };
-
         $rootScope.saveUser = function () {
             $http.put('/restapi/users/' + $rootScope.user.id, $rootScope.user).then(function () {
                 $rootScope.showPopup = false;
@@ -103,7 +94,6 @@
             })
         };
     })
-
 </script>
 
 </body>
